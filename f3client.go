@@ -1,10 +1,17 @@
-package f3client
+/*
+Package f3client is a client library for Form3 API.
 
-// We let the json request and responses as per
-// https://api-docs.form3.tech/api.html#organisation-accounts-create
-// guide us in creating the domain data types.
-// Loosely following design filosophy as worded in
-// https://www.gobeyond.dev/standard-package-layout/
+Design rationale:
+	We let the json request and responses as per
+	https://api-docs.form3.tech/api.html#organisation-accounts-create
+	guide us in creating the domain data types.
+	Loosely following design filosophy as worded in
+	https://www.gobeyond.dev/standard-package-layout/
+
+Notes:
+	Only definitions hosted in this file.
+*/
+package f3client
 
 // Attributes describe account metadata
 type Attributes struct {
@@ -23,11 +30,11 @@ type Account struct {
 	Attributes
 }
 
-// AccountSvc depicts what one can do with an account.
-// As per our specs in https://github.com/form3tech-oss/interview-accountapi
+// AccountSvc encompasses account-related actions.
+// As per specs in https://github.com/form3tech-oss/interview-accountapi
 // we need to implement Create, Fetch, List and Delete.
 type AccountSvc interface {
-	Create() (&Account, error)
+	Create(ac *Account) (*Account, error)
 	Fetch(id string) (Account, error)
 	List(page int, filter interface{}) ([]Account, error)
 	Delete(id string) error
