@@ -13,6 +13,11 @@ Notes:
 */
 package f3c
 
+import (
+	"bytes"
+	"encoding/json"
+)
+
 // Attributes describe account metadata
 type Attributes struct {
 	Country    string `json:"country"`
@@ -38,4 +43,21 @@ type AccountSvc interface {
 	Fetch(id string) (Account, error)
 	List(page int, filter interface{}) ([]Account, error)
 	Delete(id string) error
+}
+
+// Payload TODO
+func (act *Account) Payload() *bytes.Buffer {
+	var actdata []byte
+	var err error
+	if actdata, err = json.Marshal(act); err != nil {
+		return nil
+	}
+	res := `
+	{
+		"data": {
+			"type": "accounts",
+	` + string(actdata) + `
+		}
+	}`
+	return bytes.NewBuffer([]byte(res))
 }
