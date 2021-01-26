@@ -9,7 +9,7 @@ interface over other protocols as well (e.g. graphQL, protobuffs, etc)
 package http
 
 import (
-	f3c "github.com/zerogvt/f3client"
+	"github.com/zerogvt/f3c"
 )
 
 // AccountSvc is an implementation of f3client.AccountSvc
@@ -20,5 +20,5 @@ type AccountSvc struct {
 // Create creates an account using the REST HTTP API
 func (*AccountSvc) Create(act *f3c.Account) (*f3c.Account, error) {
 	// TODO
-	return nil, nil
+	return &f3c.Account{}, nil
 }

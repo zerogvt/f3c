@@ -1,5 +1,5 @@
 /*
-Package f3client is a client library for Form3 API.
+Package f3c is a client library for Form3 API.
 
 Design rationale:
 	We let the json request and responses as per
@@ -11,7 +11,7 @@ Design rationale:
 Notes:
 	Only definitions hosted in this file.
 */
-package f3client
+package f3c
 
 // Attributes describe account metadata
 type Attributes struct {
