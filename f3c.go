@@ -8,8 +8,6 @@ Design rationale:
 	Loosely following design filosophy as worded in
 	https://www.gobeyond.dev/standard-package-layout/
 
-Notes:
-	Only definitions hosted in this file.
 */
 package f3c
 
@@ -18,21 +16,26 @@ import (
 	"encoding/json"
 )
 
-// Attributes describe account metadata
-type Attributes struct {
-	Country    string `json:"country"`
-	BaseCurr   string `json:"base_currency"`
-	BankID     string `json:"bank_id"`
-	BankIDCode string `json:"bank_id_code"`
-	BIC        string `json:"bic"`
+// internal use only
+type payload struct {
+	Data Account `json:"data"`
 }
 
-// Account is the basic data model for an F3 account
+// Account is the core structure representing an account.
 type Account struct {
-	ID    string `json:"id"`
-	OrgID string `json:"organisation_id"`
-	// composition through embedding
-	Attributes
+	Type           string     `json:"type"`
+	ID             string     `json:"id"`
+	OrganisationID string     `json:"organisation_id"`
+	Attributes     Attributes `json:"attributes"`
+}
+
+// Attributes are account attributes.
+type Attributes struct {
+	Country      string `json:"country"`
+	BaseCurrency string `json:"base_currency"`
+	BankID       string `json:"bank_id"`
+	BankIDCode   string `json:"bank_id_code"`
+	Bic          string `json:"bic"`
 }
 
 // AccountSvc encompasses account-related actions.
@@ -45,19 +48,42 @@ type AccountSvc interface {
 	Delete(id string) error
 }
 
-// Payload TODO
+// Payload creates a reader out of an account that can be used as body
+// in a POST or GET.
 func (act *Account) Payload() *bytes.Buffer {
-	var actdata []byte
+	var data []byte
 	var err error
-	if actdata, err = json.Marshal(act); err != nil {
+	payload := payload{*act}
+	if data, err = json.Marshal(payload); err != nil {
 		return nil
 	}
-	res := `
-	{
-		"data": {
-			"type": "accounts",
-	` + string(actdata) + `
-		}
-	}`
-	return bytes.NewBuffer([]byte(res))
+	return bytes.NewBuffer([]byte(data))
+}
+
+// AccountCrResp represents the expected response when we create a new account.
+type AccountCrResp struct {
+	Data struct {
+		Type           string `json:"type"`
+		ID             string `json:"id"`
+		Version        int    `json:"version"`
+		OrganisationID string `json:"organisation_id"`
+		Attributes     struct {
+			Country       string `json:"country"`
+			BaseCurrency  string `json:"base_currency"`
+			AccountNumber string `json:"account_number"`
+			BankID        string `json:"bank_id"`
+			BankIDCode    string `json:"bank_id_code"`
+			Bic           string `json:"bic"`
+			Iban          string `json:"iban"`
+			Status        string `json:"status"`
+		} `json:"attributes"`
+		Relationships struct {
+			AccountEvents struct {
+				Data []struct {
+					Type string `json:"type"`
+					ID   string `json:"id"`
+				} `json:"data"`
+			} `json:"account_events"`
+		} `json:"relationships"`
+	} `json:"data"`
 }

@@ -29,22 +29,20 @@ type AccountSvc struct {
 }
 
 // Create creates an account using the REST HTTP API
-func (svc *AccountSvc) Create(act *f3c.Account) (*f3c.Account, error) {
-	resAct := f3c.Account{}
-	resp, err := svc.Cli.Post(svc.Base+"/v1/organisation/accounts",
+func (svc *AccountSvc) Create(act f3c.Account) (f3c.AccountCrResp, error) {
+	res := f3c.AccountCrResp{}
+	r, err := svc.Cli.Post(svc.Base+"/v1/organisation/accounts",
 		"application/vnd.api+json",
 		act.Payload(),
 	)
 	if err != nil {
-		return &resAct, err
+		return res, err
 	}
 	fmt.Println("HTTP Response Status:",
-		resp.StatusCode,
-		http.StatusText(resp.StatusCode))
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Printf("%+v\n", body)
-	err = json.Unmarshal(body, &resAct)
-	fmt.Printf("%+v\n", resAct)
-	return &resAct, err
+		r.StatusCode,
+		http.StatusText(r.StatusCode))
+	defer r.Body.Close()
+	body, err := ioutil.ReadAll(r.Body)
+	err = json.Unmarshal(body, &res)
+	return res, err
 }
