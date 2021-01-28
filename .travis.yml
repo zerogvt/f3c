@@ -10,7 +10,7 @@ before_install:
   - sudo apt install docker-ce
   - sudo systemctl status docker
   - docker --version
-  - docker-compose up
+  - docker-compose up --detach
 
 go:
   - 1.14.x
@@ -20,4 +20,5 @@ install:
 
 script:
   - go test ./...
+  - docker-compose down
   - go build
