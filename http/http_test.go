@@ -12,8 +12,7 @@ import (
 	"github.com/zerogvt/f3c/http"
 )
 
-func randomID(length int) string {
-	seed := time.Now().Unix()
+func randomID(length int, seed int64) string {
 	fmt.Printf("seed: %d\n", seed)
 	rand.Seed(seed)
 	//Only lowercase
@@ -42,7 +41,7 @@ func TestAccountSvc_Create(t *testing.T) {
 				Base: "http://localhost:8080",
 			}
 			// get a fresh uid to avoid conflicts with past accounts
-			uid := "ad27e265-9605-4b4b-a0e5-" + randomID(12)
+			uid := "ad27e265-9605-4b4b-a0e5-" + randomID(12, time.Now().Unix())
 			fmt.Println(uid)
 			oid := "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"
 			attr := f3c.Attributes{
@@ -94,7 +93,7 @@ func TestAccountSvc_CreateDuplicate(t *testing.T) {
 			svc := http.AccountSvc{
 				Base: "http://localhost:8080",
 			}
-			uid := "ad27e265-9605-4b4b-a0e5-" + randomID(12)
+			uid := "ad27e265-9605-4b4b-a0e5-" + randomID(12, time.Now().Unix())
 			fmt.Println(uid)
 			oid := "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"
 			attr := f3c.Attributes{
