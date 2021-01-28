@@ -83,7 +83,7 @@ func TestAccountSvc_Create(t *testing.T) {
 }
 
 func TestAccountSvc_CreateDuplicate(t *testing.T) {
-	t.Run("Duplicate account creation should result in error",
+	t.Run("We should catch an HTTP error such as duplicate account creation",
 		func(t *testing.T) {
 			svc := http.AccountSvc{
 				Base: "http://localhost:8080",
