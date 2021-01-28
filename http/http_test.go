@@ -13,7 +13,9 @@ import (
 )
 
 func randomID(length int) string {
-	rand.Seed(time.Now().Unix())
+	seed := time.Now().Unix()
+	fmt.Printf("seed: %d\n", seed)
+	rand.Seed(seed)
 	//Only lowercase
 	charSet := "0123456789abcdedf"
 	var output strings.Builder
