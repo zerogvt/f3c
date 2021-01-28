@@ -38,11 +38,31 @@ func (svc *AccountSvc) Create(act f3c.Account) (f3c.AccountCrResp, error) {
 	if err != nil {
 		return res, err
 	}
-	fmt.Println("HTTP Response Status:",
-		r.StatusCode,
-		http.StatusText(r.StatusCode))
+	if err = failed(r); err != nil {
+		return res, err
+	}
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	err = json.Unmarshal(body, &res)
 	return res, err
+}
+
+// Err represents an HTTP client or server error (i.e. status code >= 400)
+type Err struct {
+	Code int
+	Text string
+}
+
+func (e Err) Error() string {
+	return fmt.Sprintf("HTTP Error: %d, %s", e.Code, e.Text)
+}
+
+func failed(r *http.Response) error {
+	fmt.Println("HTTP Response Status:",
+		r.StatusCode,
+		http.StatusText(r.StatusCode))
+	if r.StatusCode >= 400 {
+		return Err{r.StatusCode, http.StatusText(r.StatusCode)}
+	}
+	return nil
 }

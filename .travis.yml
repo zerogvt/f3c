@@ -3,6 +3,7 @@ dist: bionic
 language: go
 
 before_install:
+  # install docker-compose and run our backend containers
   - sudo apt update
   - sudo apt upgrade
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
