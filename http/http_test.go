@@ -39,6 +39,7 @@ func TestAccountSvc_Create(t *testing.T) {
 				Base: "http://localhost:8080",
 			}
 			uid := "ad27e265-9605-4b4b-a0e5-" + randomID(12)
+			fmt.Print(uid)
 			oid := "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"
 			attr := f3c.Attributes{
 				Country:      "GB",
@@ -89,6 +90,7 @@ func TestAccountSvc_CreateDuplicate(t *testing.T) {
 				Base: "http://localhost:8080",
 			}
 			uid := "ad27e265-9605-4b4b-a0e5-" + randomID(12)
+			fmt.Print(uid)
 			oid := "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"
 			attr := f3c.Attributes{
 				Country:      "GB",
