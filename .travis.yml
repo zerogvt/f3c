@@ -22,3 +22,13 @@ script:
   - go test ./...
   - docker-compose down
   - go build
+
+jobs:
+  include:
+    - stage: test
+      script:
+        - go test ./...
+        - docker-compose down
+    - stage: build
+      script:
+        - go build
