@@ -143,32 +143,36 @@ func TestAccountSvc_Fetch(t *testing.T) {
 		})
 }
 
+func actErr(name string, field1 interface{}, field2 interface{}) error {
+	return errors.New(fmt.Sprintf("%s: %v != %v", name, field1, field2))
+}
+
 func isEqual(act f3c.Account, res f3c.AccountCrResp) error {
 	if act.ID != res.Data.ID {
-		return errors.New("UID expected" + act.ID + "but got" + res.Data.ID)
+		return actErr("UID", act.ID, res.Data.ID)
 	}
 	if act.OrganisationID != res.Data.OrganisationID {
-		return errors.New("Org ID expected" + act.OrganisationID + "but got" +
+		return actErr("Org ID", act.OrganisationID,
 			res.Data.OrganisationID)
 	}
 	if act.Attributes.Country != res.Data.Attributes.Country {
-		return errors.New("Country expected" + act.Attributes.Country + "but got" +
+		return actErr("Country", act.Attributes.Country,
 			res.Data.Attributes.Country)
 	}
 	if act.Attributes.BaseCurrency != res.Data.Attributes.BaseCurrency {
-		return errors.New("BaseCurrency expected" + act.Attributes.BaseCurrency + "but got" +
+		return actErr("BaseCurrency", act.Attributes.BaseCurrency,
 			res.Data.Attributes.BaseCurrency)
 	}
 	if act.Attributes.BankID != res.Data.Attributes.BankID {
-		return errors.New("BankID expected" + act.Attributes.BankID + "but got" +
+		return actErr("BankID", act.Attributes.BankID,
 			res.Data.Attributes.BankID)
 	}
 	if act.Attributes.BankIDCode != res.Data.Attributes.BankIDCode {
-		return errors.New("BankIDCode expected" + act.Attributes.BankIDCode + "but got" +
+		return actErr("BankIDCode", act.Attributes.BankIDCode,
 			res.Data.Attributes.BankIDCode)
 	}
 	if act.Attributes.BIC != res.Data.Attributes.BIC {
-		return errors.New("BIC expected" + act.Attributes.BIC + "but got" +
+		return actErr("BIC", act.Attributes.BIC,
 			res.Data.Attributes.BIC)
 	}
 	return nil
