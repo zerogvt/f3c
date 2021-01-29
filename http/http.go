@@ -47,6 +47,22 @@ func (svc *AccountSvc) Create(act f3c.Account) (f3c.AccountCrResp, error) {
 	return res, err
 }
 
+// Fetch gets an account id and fetches the account data.
+func (svc *AccountSvc) Fetch(id string) (f3c.AccountCrResp, error) {
+	res := f3c.AccountCrResp{}
+	r, err := svc.Cli.Get(svc.Base + "/v1/organisation/accounts/" + id)
+	if err != nil {
+		return res, err
+	}
+	if err = failed(r); err != nil {
+		return res, err
+	}
+	defer r.Body.Close()
+	body, err := ioutil.ReadAll(r.Body)
+	err = json.Unmarshal(body, &res)
+	return res, err
+}
+
 // Err represents an HTTP client or server error (i.e. status code >= 400)
 type Err struct {
 	Code int

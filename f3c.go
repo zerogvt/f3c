@@ -31,11 +31,14 @@ type Account struct {
 
 // Attributes are account attributes.
 type Attributes struct {
-	Country      string `json:"country"`
-	BaseCurrency string `json:"base_currency"`
-	BankID       string `json:"bank_id"`
-	BankIDCode   string `json:"bank_id_code"`
-	Bic          string `json:"bic"`
+	Country       string `json:"country"`
+	BaseCurrency  string `json:"base_currency"`
+	BankID        string `json:"bank_id"`
+	BankIDCode    string `json:"bank_id_code"`
+	AccountNumber string `json:"account_number"`
+	BIC           string `json:"bic"`
+	IBAN          string `json:"iban"`
+	CustomerID    string `json:"customer_id"`
 }
 
 // AccountSvc encompasses account-related actions.
@@ -73,8 +76,8 @@ type AccountCrResp struct {
 			AccountNumber string `json:"account_number"`
 			BankID        string `json:"bank_id"`
 			BankIDCode    string `json:"bank_id_code"`
-			Bic           string `json:"bic"`
-			Iban          string `json:"iban"`
+			BIC           string `json:"bic"`
+			IBAN          string `json:"iban"`
 			Status        string `json:"status"`
 		} `json:"attributes"`
 		Relationships struct {
