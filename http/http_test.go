@@ -1,7 +1,6 @@
 package http_test
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -29,13 +28,6 @@ func randomID(length int) string {
 	return output.String()
 }
 
-func pprint(data interface{}) {
-	json, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		return
-	}
-	fmt.Println(string(json))
-}
 func TestAccountSvc_Create(t *testing.T) {
 	t.Run("A new account should be created without errors",
 		func(t *testing.T) {
@@ -46,11 +38,12 @@ func TestAccountSvc_Create(t *testing.T) {
 			uid := "ad27e265-9605-4b4b-a0e5-" + randomID(12)
 			oid := "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"
 			attr := f3c.Attributes{
-				Country:      "GB",
-				BaseCurrency: "GBP",
-				BankID:       "400300",
-				BankIDCode:   "GBDSC",
-				BIC:          "NWBKGB22",
+				Country:               "GB",
+				BaseCurrency:          "GBP",
+				BankID:                "400300",
+				BankIDCode:            "GBDSC",
+				Bic:                   "NWBKGB22",
+				AccountClassification: "Personal",
 			}
 			act := f3c.Account{
 				Type:           "accounts",
@@ -58,12 +51,12 @@ func TestAccountSvc_Create(t *testing.T) {
 				OrganisationID: oid,
 				Attributes:     attr,
 			}
-			res := f3c.AccountCrResp{}
+			res := f3c.AccountXL{}
 			var err error
 			if res, err = svc.Create(act); err != nil {
 				t.Fatal(err)
 			}
-			pprint(res)
+			f3c.Pprint(res)
 			if err = isEqual(act, res); err != nil {
 				t.Fatal(err)
 			}
@@ -79,11 +72,12 @@ func TestAccountSvc_CreateDuplicate(t *testing.T) {
 			uid := "ad27e265-9605-4b4b-a0e5-" + randomID(12)
 			oid := "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"
 			attr := f3c.Attributes{
-				Country:      "GB",
-				BaseCurrency: "GBP",
-				BankID:       "400300",
-				BankIDCode:   "GBDSC",
-				BIC:          "NWBKGB22",
+				Country:               "GB",
+				BaseCurrency:          "GBP",
+				BankID:                "400300",
+				BankIDCode:            "GBDSC",
+				Bic:                   "NWBKGB22",
+				AccountClassification: "Personal",
 			}
 			act_1 := f3c.Account{
 				Type:           "accounts",
@@ -113,11 +107,12 @@ func TestAccountSvc_Fetch(t *testing.T) {
 			uid := "ad27e265-9605-4b4b-a0e5-000000000000"
 			oid := "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"
 			attr := f3c.Attributes{
-				Country:      "GB",
-				BaseCurrency: "GBP",
-				BankID:       "400300",
-				BankIDCode:   "GBDSC",
-				BIC:          "NWBKGB22",
+				Country:               "GB",
+				BaseCurrency:          "GBP",
+				BankID:                "400300",
+				BankIDCode:            "GBDSC",
+				Bic:                   "NWBKGB22",
+				AccountClassification: "Personal",
 			}
 			act := f3c.Account{
 				Type:           "accounts",
@@ -132,7 +127,7 @@ func TestAccountSvc_Fetch(t *testing.T) {
 				}
 			}
 			// now try to fetch
-			res := f3c.AccountCrResp{}
+			res := f3c.AccountXL{}
 			var err error
 			if res, err = svc.Fetch(uid); err != nil {
 				t.Fatal(err)
@@ -143,37 +138,52 @@ func TestAccountSvc_Fetch(t *testing.T) {
 		})
 }
 
-func actErr(name string, field1 interface{}, field2 interface{}) error {
-	return errors.New(fmt.Sprintf("%s: %v != %v", name, field1, field2))
+func TestAccountSvc_List(t *testing.T) {
+	t.Run("An existing account should be fetched",
+		func(t *testing.T) {
+			svc := http.AccountSvc{
+				Base: "http://localhost:8080",
+			}
+			acts := []f3c.AccountXL{}
+			var err error
+			if acts, err = svc.List(0, 100); err != nil {
+				t.Fatal(err)
+			}
+			f3c.Pprint(acts)
+		})
 }
 
-func isEqual(act f3c.Account, res f3c.AccountCrResp) error {
-	if act.ID != res.Data.ID {
-		return actErr("UID", act.ID, res.Data.ID)
+func actErr(name string, field1 interface{}, field2 interface{}) error {
+	return errors.New(fmt.Sprintf("ERROR %s: %v != %v", name, field1, field2))
+}
+
+func isEqual(act f3c.Account, res f3c.AccountXL) error {
+	if act.ID != res.ID {
+		return actErr("UID", act.ID, res.ID)
 	}
-	if act.OrganisationID != res.Data.OrganisationID {
+	if act.OrganisationID != res.OrganisationID {
 		return actErr("Org ID", act.OrganisationID,
-			res.Data.OrganisationID)
+			res.OrganisationID)
 	}
-	if act.Attributes.Country != res.Data.Attributes.Country {
+	if act.Attributes.Country != res.Attributes.Country {
 		return actErr("Country", act.Attributes.Country,
-			res.Data.Attributes.Country)
+			res.Attributes.Country)
 	}
-	if act.Attributes.BaseCurrency != res.Data.Attributes.BaseCurrency {
+	if act.Attributes.BaseCurrency != res.Attributes.BaseCurrency {
 		return actErr("BaseCurrency", act.Attributes.BaseCurrency,
-			res.Data.Attributes.BaseCurrency)
+			res.Attributes.BaseCurrency)
 	}
-	if act.Attributes.BankID != res.Data.Attributes.BankID {
+	if act.Attributes.BankID != res.Attributes.BankID {
 		return actErr("BankID", act.Attributes.BankID,
-			res.Data.Attributes.BankID)
+			res.Attributes.BankID)
 	}
-	if act.Attributes.BankIDCode != res.Data.Attributes.BankIDCode {
+	if act.Attributes.BankIDCode != res.Attributes.BankIDCode {
 		return actErr("BankIDCode", act.Attributes.BankIDCode,
-			res.Data.Attributes.BankIDCode)
+			res.Attributes.BankIDCode)
 	}
-	if act.Attributes.BIC != res.Data.Attributes.BIC {
-		return actErr("BIC", act.Attributes.BIC,
-			res.Data.Attributes.BIC)
+	if act.Attributes.Bic != res.Attributes.Bic {
+		return actErr("BIC", act.Attributes.Bic,
+			res.Attributes.Bic)
 	}
 	return nil
 }

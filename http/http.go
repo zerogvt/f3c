@@ -9,9 +9,7 @@ interface over other protocols as well (e.g. graphQL, protobuffs, etc)
 package http
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/zerogvt/f3c"
@@ -29,11 +27,11 @@ type AccountSvc struct {
 }
 
 // Create creates an account using the REST HTTP API
-func (svc *AccountSvc) Create(act f3c.Account) (f3c.AccountCrResp, error) {
-	res := f3c.AccountCrResp{}
+func (svc *AccountSvc) Create(act f3c.Account) (f3c.AccountXL, error) {
+	res := f3c.AccountXL{}
 	r, err := svc.Cli.Post(svc.Base+"/v1/organisation/accounts",
 		"application/vnd.api+json",
-		act.Payload(),
+		act.ToPayload(),
 	)
 	if err != nil {
 		return res, err
@@ -41,15 +39,13 @@ func (svc *AccountSvc) Create(act f3c.Account) (f3c.AccountCrResp, error) {
 	if err = failed(r); err != nil {
 		return res, err
 	}
-	defer r.Body.Close()
-	body, err := ioutil.ReadAll(r.Body)
-	err = json.Unmarshal(body, &res)
+	res, err = f3c.FromPayload(r)
 	return res, err
 }
 
 // Fetch gets an account id and fetches the account data.
-func (svc *AccountSvc) Fetch(id string) (f3c.AccountCrResp, error) {
-	res := f3c.AccountCrResp{}
+func (svc *AccountSvc) Fetch(id string) (f3c.AccountXL, error) {
+	res := f3c.AccountXL{}
 	r, err := svc.Cli.Get(svc.Base + "/v1/organisation/accounts/" + id)
 	if err != nil {
 		return res, err
@@ -57,9 +53,22 @@ func (svc *AccountSvc) Fetch(id string) (f3c.AccountCrResp, error) {
 	if err = failed(r); err != nil {
 		return res, err
 	}
-	defer r.Body.Close()
-	body, err := ioutil.ReadAll(r.Body)
-	err = json.Unmarshal(body, &res)
+	res, err = f3c.FromPayload(r)
+	return res, err
+}
+
+// List gets a list of all accounts. It supports paging.
+// TODO add paging
+func (svc *AccountSvc) List(page int, pagesize int) ([]f3c.AccountXL, error) {
+	res := []f3c.AccountXL{}
+	r, err := svc.Cli.Get(svc.Base + "/v1/organisation/accounts/")
+	if err != nil {
+		return res, err
+	}
+	if err = failed(r); err != nil {
+		return res, err
+	}
+	res, err = f3c.FromPayloadArr(r)
 	return res, err
 }
 
