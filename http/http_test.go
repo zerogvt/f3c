@@ -28,6 +28,36 @@ func randomID(length int) string {
 	return output.String()
 }
 
+func createRandomAcct(t *testing.T) string {
+	svc := http.AccountSvc{
+		Base: "http://localhost:8080",
+	}
+	// make sure the test account is in server
+	uid := "ad27e265-9605-4b4b-a0e5-" + randomID(12)
+	oid := "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"
+	attr := f3c.Attributes{
+		Country:               "GB",
+		BaseCurrency:          "GBP",
+		BankID:                "400300",
+		BankIDCode:            "GBDSC",
+		Bic:                   "NWBKGB22",
+		AccountClassification: "Personal",
+	}
+	act := f3c.Account{
+		Type:           "accounts",
+		ID:             uid,
+		OrganisationID: oid,
+		Attributes:     attr,
+	}
+	if _, err := svc.Create(act); err != nil {
+		//it's ok to get a conflict error
+		if !strings.Contains(err.Error(), "Conflict") {
+			t.Fatal(err)
+		}
+	}
+	return uid
+}
+
 func TestAccountSvc_Create(t *testing.T) {
 	t.Run("A new account should be created without errors",
 		func(t *testing.T) {
@@ -56,7 +86,6 @@ func TestAccountSvc_Create(t *testing.T) {
 			if res, err = svc.Create(act); err != nil {
 				t.Fatal(err)
 			}
-			f3c.Pprint(res)
 			if err = isEqual(act, res); err != nil {
 				t.Fatal(err)
 			}
@@ -103,53 +132,51 @@ func TestAccountSvc_Fetch(t *testing.T) {
 			svc := http.AccountSvc{
 				Base: "http://localhost:8080",
 			}
-			// make sure the test account is in server
-			uid := "ad27e265-9605-4b4b-a0e5-000000000000"
-			oid := "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"
-			attr := f3c.Attributes{
-				Country:               "GB",
-				BaseCurrency:          "GBP",
-				BankID:                "400300",
-				BankIDCode:            "GBDSC",
-				Bic:                   "NWBKGB22",
-				AccountClassification: "Personal",
-			}
-			act := f3c.Account{
-				Type:           "accounts",
-				ID:             uid,
-				OrganisationID: oid,
-				Attributes:     attr,
-			}
-			if _, err := svc.Create(act); err != nil {
-				//it's ok to get a conflict error
-				if !strings.Contains(err.Error(), "Conflict") {
-					t.Fatal(err)
-				}
-			}
+			uid := createRandomAcct(t)
 			// now try to fetch
-			res := f3c.AccountXL{}
-			var err error
-			if res, err = svc.Fetch(uid); err != nil {
-				t.Fatal(err)
-			}
-			if err = isEqual(act, res); err != nil {
+			if _, err := svc.Fetch(uid); err != nil {
 				t.Fatal(err)
 			}
 		})
 }
 
 func TestAccountSvc_List(t *testing.T) {
-	t.Run("An existing account should be fetched",
+	t.Run("A list of 5 newly created accounts should be listed",
 		func(t *testing.T) {
 			svc := http.AccountSvc{
 				Base: "http://localhost:8080",
 			}
-			acts := []f3c.AccountXL{}
-			var err error
-			if acts, err = svc.List(0, 100); err != nil {
-				t.Fatal(err)
+			// create 5 accounts
+			want := []string{}
+			for i := 1; i <= 5; i++ {
+				want = append(want, createRandomAcct(t))
 			}
-			f3c.Pprint(acts)
+			acts, res := []f3c.AccountXL{}, []f3c.AccountXL{}
+			var err error
+			// get all accounts
+			for pg := 0; true; pg += 1 {
+				if res, err = svc.List(pg, 100); err != nil {
+					t.Fatal(err)
+				}
+				if len(res) == 0 {
+					break
+				}
+				acts = append(acts, res...)
+			}
+			t.Log("I got a total of", len(acts), "accounts")
+			// create a map with all uids
+			uids := make(map[string]bool)
+			for _, ac := range acts {
+				uids[ac.ID] = true
+			}
+			// we must have our 5 newly created ids in that map
+			for _, id := range want {
+				if _, ok := uids[id]; !ok {
+					t.Fatal("uid ", id, "not found in listed accounts.")
+				} else {
+					t.Log("uid ", id, "found in listed accounts.")
+				}
+			}
 		})
 }
 

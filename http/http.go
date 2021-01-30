@@ -61,7 +61,12 @@ func (svc *AccountSvc) Fetch(id string) (f3c.AccountXL, error) {
 // TODO add paging
 func (svc *AccountSvc) List(page int, pagesize int) ([]f3c.AccountXL, error) {
 	res := []f3c.AccountXL{}
-	r, err := svc.Cli.Get(svc.Base + "/v1/organisation/accounts/")
+	ep := fmt.Sprintf("%s%s%s%d%s%d",
+		svc.Base,
+		"/v1/organisation/accounts/",
+		"?page[number]=", page,
+		"&page[size]=", pagesize)
+	r, err := svc.Cli.Get(ep)
 	if err != nil {
 		return res, err
 	}
