@@ -7,18 +7,10 @@ Design rationale:
 	guide us in creating the domain data types.
 	Loosely following design filosophy as worded in
 	https://www.gobeyond.dev/standard-package-layout/
-
 */
 package f3c
 
-import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"net/http"
-)
-
+// Account models a user account.
 type Account struct {
 	Type           string     `json:"type"`
 	ID             string     `json:"id"`
@@ -26,12 +18,14 @@ type Account struct {
 	Attributes     Attributes `json:"attributes"`
 }
 
+// AccountXL is a user account with added metadata.
 type AccountXL struct {
 	Account
 	Version       int           `json:"version"`
 	Relationships Relationships `json:"relationships"`
 }
 
+// PrivateIdentification models user personal identification data.
 type PrivateIdentification struct {
 	BirthDate      string   `json:"birth_date"`
 	BirthCountry   string   `json:"birth_country"`
@@ -40,11 +34,15 @@ type PrivateIdentification struct {
 	City           string   `json:"city"`
 	Country        string   `json:"country"`
 }
+
+// Actors models actors. (Fixme: no idea what this is in the real world).
 type Actors struct {
 	Name      []string `json:"name"`
 	BirthDate string   `json:"birth_date"`
 	Residency string   `json:"residency"`
 }
+
+// OrganisationIdentification models org id data.
 type OrganisationIdentification struct {
 	Identification string   `json:"identification"`
 	Actors         []Actors `json:"actors"`
@@ -52,6 +50,8 @@ type OrganisationIdentification struct {
 	City           string   `json:"city"`
 	Country        string   `json:"country"`
 }
+
+// Attributes model user account attributes.
 type Attributes struct {
 	Country                    string                     `json:"country"`
 	BaseCurrency               string                     `json:"base_currency"`
@@ -72,34 +72,40 @@ type Attributes struct {
 	Status                     string                     `json:"status"`
 }
 
+// Relationships models relationships of this account.
 type Relationships struct {
 	MasterAccount MasterAccount `json:"master_account"`
 	AccountEvents AccountEvents `json:"account_events"`
 }
 
+// Rel models a relationship.
 type Rel struct {
 	Type string `json:"type"`
 	ID   string `json:"id"`
 }
 
+// MasterAccount models relationships to master account.
 type MasterAccount struct {
 	Rels []Rel `json:"data"`
 }
 
+// AccountEvents models events happened on this account.
 type AccountEvents struct {
 	Evts []Rel `json:"data"`
 }
 
-// internal use to help unmarshalling responses
-type payloadOut struct {
+// PayloadOut is a helper struct to model the json data that client sends.
+type PayloadOut struct {
 	Account Account `json:"data"`
 }
 
-type payloadIn struct {
+// PayloadIn is a helper struct to model the json data that client receives.
+type PayloadIn struct {
 	Account AccountXL `json:"data"`
 }
 
-type payloadInArr struct {
+// PayloadInArr is the array equivalent for PayloadIn.
+type PayloadInArr struct {
 	Accounts []AccountXL `json:"data"`
 }
 
@@ -111,61 +117,4 @@ type AccountSvc interface {
 	Fetch(id string) (AccountXL, error)
 	List(page int, pagesize int) ([]AccountXL, error)
 	Delete(id string) error
-}
-
-func Pprint(data interface{}) {
-	json, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		return
-	}
-	fmt.Println(string(json))
-}
-
-// Payload creates a reader out of an account that can be used as body
-// in a POST or GET.
-func (act *Account) ToPayload() *bytes.Buffer {
-	var data []byte
-	var err error
-	payload := payloadOut{*act}
-	//Pprint(payload)
-	if data, err = json.Marshal(payload); err != nil {
-		return nil
-	}
-	return bytes.NewBuffer([]byte(data))
-}
-
-// Payload creates a reader out of an account that can be used as body
-// in a POST or GET.
-func FromPayload(r *http.Response) (AccountXL, error) {
-	res := AccountXL{}
-	defer r.Body.Close()
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		return res, err
-	}
-	data := payloadIn{}
-	err = json.Unmarshal(body, &data)
-	if err != nil {
-		return res, err
-	}
-	res = data.Account
-	return res, nil
-}
-
-// Payload creates a reader out of an account that can be used as body
-// in a POST or GET.
-func FromPayloadArr(r *http.Response) ([]AccountXL, error) {
-	res := []AccountXL{}
-	defer r.Body.Close()
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		return res, err
-	}
-	data := payloadInArr{}
-	err = json.Unmarshal(body, &data)
-	if err != nil {
-		return res, err
-	}
-	res = data.Accounts
-	return res, nil
 }

@@ -28,7 +28,7 @@ func randomID(length int) string {
 	return output.String()
 }
 
-func createRandomAcct(t *testing.T) string {
+func createRandomAcct(t *testing.T) f3c.Account {
 	svc := http.AccountSvc{
 		Base: "http://localhost:8080",
 	}
@@ -55,7 +55,7 @@ func createRandomAcct(t *testing.T) string {
 			t.Fatal(err)
 		}
 	}
-	return uid
+	return act
 }
 
 func TestAccountSvc_Create(t *testing.T) {
@@ -132,9 +132,9 @@ func TestAccountSvc_Fetch(t *testing.T) {
 			svc := http.AccountSvc{
 				Base: "http://localhost:8080",
 			}
-			uid := createRandomAcct(t)
+			act := createRandomAcct(t)
 			// now try to fetch
-			if _, err := svc.Fetch(uid); err != nil {
+			if _, err := svc.Fetch(act.ID); err != nil {
 				t.Fatal(err)
 			}
 		})
@@ -146,9 +146,9 @@ func TestAccountSvc_Delete(t *testing.T) {
 			svc := http.AccountSvc{
 				Base: "http://localhost:8080",
 			}
-			uid := createRandomAcct(t)
+			act := createRandomAcct(t)
 			// now try to delete
-			if err := svc.Delete(uid, 0); err != nil {
+			if err := svc.Delete(act.ID, 0); err != nil {
 				t.Fatal(err)
 			}
 		})
@@ -163,7 +163,7 @@ func TestAccountSvc_List(t *testing.T) {
 			// create 5 accounts
 			want := []string{}
 			for i := 1; i <= 5; i++ {
-				want = append(want, createRandomAcct(t))
+				want = append(want, createRandomAcct(t).ID)
 			}
 			acts, res := []f3c.AccountXL{}, []f3c.AccountXL{}
 			var err error
