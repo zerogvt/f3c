@@ -64,7 +64,9 @@ func TestAccountSvc_Create(t *testing.T) {
 			svc := http.AccountSvc{
 				Base: "http://localhost:8080",
 			}
-			// get a fresh uid to avoid conflicts with past accounts
+			// Get a fresh uid to avoid conflicts with past accounts.
+			// We don't use the createRandomAcct() func here because we
+			// want fine grained control on the creation process for this test.
 			uid := "ad27e265-9605-4b4b-a0e5-" + randomID(12)
 			oid := "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"
 			attr := f3c.Attributes{
@@ -98,26 +100,11 @@ func TestAccountSvc_CreateDuplicate(t *testing.T) {
 			svc := http.AccountSvc{
 				Base: "http://localhost:8080",
 			}
-			uid := "ad27e265-9605-4b4b-a0e5-" + randomID(12)
-			oid := "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"
-			attr := f3c.Attributes{
-				Country:               "GB",
-				BaseCurrency:          "GBP",
-				BankID:                "400300",
-				BankIDCode:            "GBDSC",
-				Bic:                   "NWBKGB22",
-				AccountClassification: "Personal",
-			}
-			act_1 := f3c.Account{
-				Type:           "accounts",
-				ID:             uid,
-				OrganisationID: oid,
-				Attributes:     attr,
-			}
+			// Create first account.
+			act_1 := createRandomAcct(t)
+			// When trying to recreate the same account
+			// we should get an error.
 			act_2 := act_1
-			if _, err := svc.Create(act_1); err != nil {
-				t.Fatal(err)
-			}
 			if _, err := svc.Create(act_2); err == nil {
 				t.Fatal("no error was produced")
 			} else {
