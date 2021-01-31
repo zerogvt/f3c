@@ -140,6 +140,20 @@ func TestAccountSvc_Fetch(t *testing.T) {
 		})
 }
 
+func TestAccountSvc_Delete(t *testing.T) {
+	t.Run("An existing account should be deletable",
+		func(t *testing.T) {
+			svc := http.AccountSvc{
+				Base: "http://localhost:8080",
+			}
+			uid := createRandomAcct(t)
+			// now try to delete
+			if err := svc.Delete(uid, 0); err != nil {
+				t.Fatal(err)
+			}
+		})
+}
+
 func TestAccountSvc_List(t *testing.T) {
 	t.Run("A list of 5 newly created accounts should be listed",
 		func(t *testing.T) {

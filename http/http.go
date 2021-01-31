@@ -57,8 +57,28 @@ func (svc *AccountSvc) Fetch(id string) (f3c.AccountXL, error) {
 	return res, err
 }
 
+// Delete deletes an account based on account id and version.
+func (svc *AccountSvc) Delete(id string, version int) error {
+	ep := fmt.Sprintf("%s%s%s%s%d",
+		svc.Base,
+		"/v1/organisation/accounts/",
+		id,
+		"?version=", version)
+	req, err := http.NewRequest("DELETE", ep, nil)
+	if err != nil {
+		return err
+	}
+	r, err := svc.Cli.Do(req)
+	if err != nil {
+		return err
+	}
+	if err := failed(r); err != nil {
+		return err
+	}
+	return nil
+}
+
 // List gets a list of all accounts. It supports paging.
-// TODO add paging
 func (svc *AccountSvc) List(page int, pagesize int) ([]f3c.AccountXL, error) {
 	res := []f3c.AccountXL{}
 	ep := fmt.Sprintf("%s%s%s%d%s%d",
@@ -91,7 +111,7 @@ func failed(r *http.Response) error {
 	fmt.Println("HTTP Response Status:",
 		r.StatusCode,
 		http.StatusText(r.StatusCode))
-	if r.StatusCode >= 400 {
+	if !(r.StatusCode >= 200 && r.StatusCode < 300) {
 		return Err{r.StatusCode, http.StatusText(r.StatusCode)}
 	}
 	return nil
