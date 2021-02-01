@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	nethttp "net/http"
 	"strings"
 	"testing"
 	"time"
@@ -16,6 +17,8 @@ func init() {
 	rand.Seed(time.Now().Unix())
 }
 
+// randomID returns a random string of length length
+// helper func
 func randomID(length int) string {
 	//Only lowercase
 	charSet := "0123456789abcdedf"
@@ -28,10 +31,9 @@ func randomID(length int) string {
 	return output.String()
 }
 
-func createRandomAcct(t *testing.T) f3c.Account {
-	svc := http.AccountSvc{
-		Base: "http://localhost:8080",
-	}
+// createRandomAcct creates a random account
+// helper func
+func createRandomAcct(t *testing.T, svc *http.AccountSvc) f3c.Account {
 	// make sure the test account is in server
 	uid := "ad27e265-9605-4b4b-a0e5-" + randomID(12)
 	oid := "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"
@@ -50,10 +52,7 @@ func createRandomAcct(t *testing.T) f3c.Account {
 		Attributes:     attr,
 	}
 	if _, err := svc.Create(act); err != nil {
-		//it's ok to get a conflict error
-		if !strings.Contains(err.Error(), "Conflict") {
-			t.Fatal(err)
-		}
+		t.Fatal(err)
 	}
 	return act
 }
@@ -101,15 +100,27 @@ func TestAccountSvc_CreateDuplicate(t *testing.T) {
 				Base: "http://localhost:8080",
 			}
 			// Create first account.
-			act_1 := createRandomAcct(t)
+			act_1 := createRandomAcct(t, &svc)
 			// When trying to recreate the same account
 			// we should get an error.
 			act_2 := act_1
 			if _, err := svc.Create(act_2); err == nil {
 				t.Fatal("no error was produced")
-			} else {
-				fmt.Print(err.Error())
 			}
+		})
+}
+
+func TestAccountSvc_CreateWithNonStandardClient(t *testing.T) {
+	t.Run("We should catch an HTTP error such as duplicate account creation",
+		func(t *testing.T) {
+			svc := http.AccountSvc{
+				Cli: nethttp.Client{
+					Timeout: time.Duration(10) * time.Second,
+				},
+				Base: "http://localhost:8080",
+			}
+			// Create first account.
+			createRandomAcct(t, &svc)
 		})
 }
 
@@ -119,7 +130,7 @@ func TestAccountSvc_Fetch(t *testing.T) {
 			svc := http.AccountSvc{
 				Base: "http://localhost:8080",
 			}
-			act := createRandomAcct(t)
+			act := createRandomAcct(t, &svc)
 			// now try to fetch
 			if _, err := svc.Fetch(act.ID); err != nil {
 				t.Fatal(err)
@@ -133,7 +144,7 @@ func TestAccountSvc_Delete(t *testing.T) {
 			svc := http.AccountSvc{
 				Base: "http://localhost:8080",
 			}
-			act := createRandomAcct(t)
+			act := createRandomAcct(t, &svc)
 			// now try to delete
 			if err := svc.Delete(act.ID, 0); err != nil {
 				t.Fatal(err)
@@ -150,7 +161,7 @@ func TestAccountSvc_List(t *testing.T) {
 			// create 5 accounts
 			want := []string{}
 			for i := 1; i <= 5; i++ {
-				want = append(want, createRandomAcct(t).ID)
+				want = append(want, createRandomAcct(t, &svc).ID)
 			}
 			acts, res := []f3c.AccountXL{}, []f3c.AccountXL{}
 			var err error
@@ -164,7 +175,6 @@ func TestAccountSvc_List(t *testing.T) {
 				}
 				acts = append(acts, res...)
 			}
-			t.Log("I got a total of", len(acts), "accounts")
 			// create a map with all uids
 			uids := make(map[string]bool)
 			for _, ac := range acts {
@@ -174,8 +184,6 @@ func TestAccountSvc_List(t *testing.T) {
 			for _, id := range want {
 				if _, ok := uids[id]; !ok {
 					t.Fatal("uid ", id, "not found in listed accounts.")
-				} else {
-					t.Log("uid ", id, "found in listed accounts.")
 				}
 			}
 		})

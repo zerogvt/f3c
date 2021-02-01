@@ -111,9 +111,6 @@ func (e Err) Error() string {
 }
 
 func failed(r *http.Response) error {
-	fmt.Println("HTTP Response Status:",
-		r.StatusCode,
-		http.StatusText(r.StatusCode))
 	if !(r.StatusCode >= 200 && r.StatusCode < 300) {
 		return Err{r.StatusCode, http.StatusText(r.StatusCode)}
 	}
