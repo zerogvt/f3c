@@ -1,10 +1,11 @@
 /*
-Package http is implementing f3client.AccountSvc interface
+Package http is implementing f3c.AccountSvc interface
 over HTTP communication protocol.
 
-Atm this is the only protocol supported by target API (that being a REST API).
+Atm this is the only protocol supported by target API.
 But having this implementation separately lays the basis of implementing the
-interface over other protocols as well (e.g. graphQL, protobuffs, etc)
+interface over other protocols as well (e.g. graphQL, protobuffs, etc) while
+keeping the same interface.
 */
 package http
 

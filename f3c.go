@@ -4,9 +4,7 @@ Package f3c is a client library for Form3 API.
 Design rationale:
 	We let the json request and responses as per
 	https://api-docs.form3.tech/api.html#organisation-accounts-create
-	guide us in creating the domain data types.
-	Loosely following design filosophy as worded in
-	https://www.gobeyond.dev/standard-package-layout/
+	dictate the domain data types.
 */
 package f3c
 

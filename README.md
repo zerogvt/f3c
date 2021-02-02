@@ -5,3 +5,6 @@ as per https://github.com/form3tech-oss/interview-accountapi
 
 # Import
 `import "github.com/zerogvt/f3c"`
+
+# Run all-in-1 tests
+`make tests`

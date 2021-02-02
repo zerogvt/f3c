@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	nethttp "net/http"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -13,15 +14,22 @@ import (
 	"github.com/zerogvt/f3c/http"
 )
 
+var Server = "http://localhost:8080"
+var ServerEnvKey = "TEST_SERVER"
+
 func init() {
 	rand.Seed(time.Now().Unix())
+	if _, ok := os.LookupEnv(ServerEnvKey); ok {
+		Server = os.Getenv(ServerEnvKey)
+	}
+	fmt.Println("Tests will be run against server: ", Server)
 }
 
 func TestCreate(t *testing.T) {
 	t.Run("A new account should be created without errors",
 		func(t *testing.T) {
 			svc := http.AccountSvc{
-				Base: "http://localhost:8080",
+				Base: Server,
 			}
 			// Get a fresh uid to avoid conflicts with past accounts.
 			// We don't use the createRandomAcct() func here because we
@@ -57,7 +65,7 @@ func TestCreateDuplicate(t *testing.T) {
 	t.Run("We should catch an HTTP error such as duplicate account creation",
 		func(t *testing.T) {
 			svc := http.AccountSvc{
-				Base: "http://localhost:8080",
+				Base: Server,
 			}
 			// Create first account.
 			act_1 := createRandomAcct(t, &svc)
@@ -77,7 +85,7 @@ func TestCreateWithNonStandardClient(t *testing.T) {
 				Cli: nethttp.Client{
 					Timeout: time.Duration(10) * time.Second,
 				},
-				Base: "http://localhost:8080",
+				Base: Server,
 			}
 			// Create first account.
 			createRandomAcct(t, &svc)
@@ -88,7 +96,7 @@ func TestFetch(t *testing.T) {
 	t.Run("An existing account should be fetched",
 		func(t *testing.T) {
 			svc := http.AccountSvc{
-				Base: "http://localhost:8080",
+				Base: Server,
 			}
 			act := createRandomAcct(t, &svc)
 			// now try to fetch
@@ -102,7 +110,7 @@ func TestDelete(t *testing.T) {
 	t.Run("An existing account should be deletable",
 		func(t *testing.T) {
 			svc := http.AccountSvc{
-				Base: "http://localhost:8080",
+				Base: Server,
 			}
 			act := createRandomAcct(t, &svc)
 			// now try to delete
@@ -116,7 +124,7 @@ func TestList(t *testing.T) {
 	t.Run("A list of 5 newly created accounts should be listed",
 		func(t *testing.T) {
 			svc := http.AccountSvc{
-				Base: "http://localhost:8080",
+				Base: Server,
 			}
 			// create 5 accounts
 			want := []string{}

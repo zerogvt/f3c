@@ -1,0 +1,7 @@
+scripts
+.travis*
+Dockerfile
+Makefile
+README.md
+docker-*
+notes
