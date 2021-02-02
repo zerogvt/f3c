@@ -17,47 +17,7 @@ func init() {
 	rand.Seed(time.Now().Unix())
 }
 
-// randomID returns a random string of length length
-// helper func
-func randomID(length int) string {
-	//Only lowercase
-	charSet := "0123456789abcdedf"
-	var output strings.Builder
-	for i := 0; i < length; i++ {
-		random := rand.Intn(len(charSet))
-		randomChar := charSet[random]
-		output.WriteString(string(randomChar))
-	}
-	return output.String()
-}
-
-// createRandomAcct creates a random account
-// helper func
-func createRandomAcct(t *testing.T, svc *http.AccountSvc) f3c.Account {
-	// make sure the test account is in server
-	uid := "ad27e265-9605-4b4b-a0e5-" + randomID(12)
-	oid := "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"
-	attr := f3c.Attributes{
-		Country:               "GB",
-		BaseCurrency:          "GBP",
-		BankID:                "400300",
-		BankIDCode:            "GBDSC",
-		Bic:                   "NWBKGB22",
-		AccountClassification: "Personal",
-	}
-	act := f3c.Account{
-		Type:           "accounts",
-		ID:             uid,
-		OrganisationID: oid,
-		Attributes:     attr,
-	}
-	if _, err := svc.Create(act); err != nil {
-		t.Fatal(err)
-	}
-	return act
-}
-
-func TestAccountSvc_Create(t *testing.T) {
+func TestCreate(t *testing.T) {
 	t.Run("A new account should be created without errors",
 		func(t *testing.T) {
 			svc := http.AccountSvc{
@@ -93,7 +53,7 @@ func TestAccountSvc_Create(t *testing.T) {
 		})
 }
 
-func TestAccountSvc_CreateDuplicate(t *testing.T) {
+func TestCreateDuplicate(t *testing.T) {
 	t.Run("We should catch an HTTP error such as duplicate account creation",
 		func(t *testing.T) {
 			svc := http.AccountSvc{
@@ -110,7 +70,7 @@ func TestAccountSvc_CreateDuplicate(t *testing.T) {
 		})
 }
 
-func TestAccountSvc_CreateWithNonStandardClient(t *testing.T) {
+func TestCreateWithNonStandardClient(t *testing.T) {
 	t.Run("We should catch an HTTP error such as duplicate account creation",
 		func(t *testing.T) {
 			svc := http.AccountSvc{
@@ -124,7 +84,7 @@ func TestAccountSvc_CreateWithNonStandardClient(t *testing.T) {
 		})
 }
 
-func TestAccountSvc_Fetch(t *testing.T) {
+func TestFetch(t *testing.T) {
 	t.Run("An existing account should be fetched",
 		func(t *testing.T) {
 			svc := http.AccountSvc{
@@ -138,7 +98,7 @@ func TestAccountSvc_Fetch(t *testing.T) {
 		})
 }
 
-func TestAccountSvc_Delete(t *testing.T) {
+func TestDelete(t *testing.T) {
 	t.Run("An existing account should be deletable",
 		func(t *testing.T) {
 			svc := http.AccountSvc{
@@ -152,7 +112,7 @@ func TestAccountSvc_Delete(t *testing.T) {
 		})
 }
 
-func TestAccountSvc_List(t *testing.T) {
+func TestList(t *testing.T) {
 	t.Run("A list of 5 newly created accounts should be listed",
 		func(t *testing.T) {
 			svc := http.AccountSvc{
@@ -222,4 +182,44 @@ func isEqual(act f3c.Account, res f3c.AccountXL) error {
 			res.Attributes.Bic)
 	}
 	return nil
+}
+
+// randomID returns a random string of length length
+// helper func
+func randomID(length int) string {
+	//Only lowercase
+	charSet := "0123456789abcdedf"
+	var output strings.Builder
+	for i := 0; i < length; i++ {
+		random := rand.Intn(len(charSet))
+		randomChar := charSet[random]
+		output.WriteString(string(randomChar))
+	}
+	return output.String()
+}
+
+// createRandomAcct creates a random account
+// helper func
+func createRandomAcct(t *testing.T, svc *http.AccountSvc) f3c.Account {
+	// make sure the test account is in server
+	uid := "ad27e265-9605-4b4b-a0e5-" + randomID(12)
+	oid := "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"
+	attr := f3c.Attributes{
+		Country:               "GB",
+		BaseCurrency:          "GBP",
+		BankID:                "400300",
+		BankIDCode:            "GBDSC",
+		Bic:                   "NWBKGB22",
+		AccountClassification: "Personal",
+	}
+	act := f3c.Account{
+		Type:           "accounts",
+		ID:             uid,
+		OrganisationID: oid,
+		Attributes:     attr,
+	}
+	if _, err := svc.Create(act); err != nil {
+		t.Fatal(err)
+	}
+	return act
 }
