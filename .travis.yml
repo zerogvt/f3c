@@ -11,7 +11,7 @@ before_install:
   - sudo apt install docker-ce
   - sudo systemctl status docker
   - docker --version
-  - docker-compose up --detach
+  - docker-compose --detach -f docker-compose-backend.yml up
 
 go:
   - 1.15.x

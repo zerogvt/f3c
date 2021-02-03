@@ -7,7 +7,6 @@ services:
     depends_on:
       - postgresql
       - vault
-      - f3c
     environment:
       - VAULT_ADDR=http://vault:8200
       - VAULT_TOKEN=8fb95528-57c6-422e-9722-d2147bcba8ed
@@ -41,6 +40,3 @@ services:
     environment:
       - SKIP_SETCAP=1
       - VAULT_DEV_ROOT_TOKEN_ID=8fb95528-57c6-422e-9722-d2147bcba8ed
-
-  f3c:
-    image: f3c
