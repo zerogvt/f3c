@@ -32,7 +32,7 @@ func TestCreate(t *testing.T) {
 				Base: Server,
 			}
 			// Get a fresh uid to avoid conflicts with past accounts.
-			// We don't use the createRandomAcct() func here because we
+			// We don't use the createRandomAcct() helper func here because we
 			// want fine grained control on the creation process for this test.
 			uid := "ad27e265-9605-4b4b-a0e5-" + randomID(12)
 			oid := "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"
@@ -44,12 +44,7 @@ func TestCreate(t *testing.T) {
 				Bic:                   "NWBKGB22",
 				AccountClassification: "Personal",
 			}
-			act := f3c.Account{
-				Type:           "accounts",
-				ID:             uid,
-				OrganisationID: oid,
-				Attributes:     attr,
-			}
+			act := f3c.NewAccount(uid, oid, attr)
 			res := f3c.AccountXL{}
 			var err error
 			if res, err = svc.Create(act); err != nil {
@@ -209,7 +204,6 @@ func randomID(length int) string {
 // createRandomAcct creates a random account
 // helper func
 func createRandomAcct(t *testing.T, svc *http.AccountSvc) f3c.Account {
-	// make sure the test account is in server
 	uid := "ad27e265-9605-4b4b-a0e5-" + randomID(12)
 	oid := "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"
 	attr := f3c.Attributes{
@@ -220,12 +214,7 @@ func createRandomAcct(t *testing.T, svc *http.AccountSvc) f3c.Account {
 		Bic:                   "NWBKGB22",
 		AccountClassification: "Personal",
 	}
-	act := f3c.Account{
-		Type:           "accounts",
-		ID:             uid,
-		OrganisationID: oid,
-		Attributes:     attr,
-	}
+	act := f3c.NewAccount(uid, oid, attr)
 	if _, err := svc.Create(act); err != nil {
 		t.Fatal(err)
 	}

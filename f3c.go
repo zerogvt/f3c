@@ -16,6 +16,16 @@ type Account struct {
 	Attributes     Attributes `json:"attributes"`
 }
 
+// NewAccount creates an account that can be used as input to CRUD operations.
+func NewAccount(uid string, orgid string, attr Attributes) Account {
+	return Account{
+		Type:           "accounts",
+		ID:             uid,
+		OrganisationID: orgid,
+		Attributes:     attr,
+	}
+}
+
 // AccountXL is a user account with added metadata.
 type AccountXL struct {
 	Account
