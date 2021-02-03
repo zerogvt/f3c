@@ -1,8 +1,11 @@
 package http_test
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	nethttp "net/http"
 	"os"
@@ -50,7 +53,7 @@ func TestCreate(t *testing.T) {
 			if res, err = svc.Create(act); err != nil {
 				t.Fatal(err)
 			}
-			if err = isEqual(act, res); err != nil {
+			if err = isEqual(act, res.Account); err != nil {
 				t.Fatal(err)
 			}
 		})
@@ -152,11 +155,87 @@ func TestList(t *testing.T) {
 		})
 }
 
+func TestToPayload(t *testing.T) {
+	t.Run("An Account should be marshalled in a payload",
+		func(t *testing.T) {
+			uid := "ad27e265-9605-4b4b-a0e5-" + randomID(12)
+			oid := "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"
+			attr := f3c.Attributes{
+				Country:               "GB",
+				BaseCurrency:          "GBP",
+				BankID:                "400300",
+				BankIDCode:            "GBDSC",
+				Bic:                   "NWBKGB22",
+				AccountClassification: "Personal",
+			}
+			want := f3c.NewAccount(uid, oid, attr)
+			// convert our account to a payload
+			payload := http.ToPayload(want)
+			// and unmarshall the payload
+			have := f3c.PayloadIn{}
+			if err := json.Unmarshal(payload.Bytes(), &have); err != nil {
+				t.Fatal(err)
+			}
+			// the account in unmarshalled payload should match the initial one
+			if err := isEqual(want, have.Account.Account); err != nil {
+				t.Fatal(err)
+			}
+		})
+}
+
+func TestFromPayload(t *testing.T) {
+	t.Run("A valid reply should be unmarshalled in a valid account",
+		func(t *testing.T) {
+			uid := "ad27e265-9605-4b4b-a0e5-" + randomID(12)
+			oid := "eb0bd6f5-c3f5-44b2-b677-acd23cdde73c"
+			attr := f3c.Attributes{
+				Country:               "GB",
+				BaseCurrency:          "GBP",
+				BankID:                "400300",
+				BankIDCode:            "GBDSC",
+				Bic:                   "NWBKGB22",
+				AccountClassification: "Personal",
+			}
+			act := f3c.NewAccount(uid, oid, attr)
+			// simulate a reply payload
+			want := f3c.PayloadIn{
+				Account: f3c.AccountXL{
+					Account:       act,
+					Version:       0,
+					Relationships: f3c.Relationships{},
+				},
+			}
+			// we're going to need the body as a io.Reader
+			var body *bytes.Buffer
+			if data, err := json.Marshal(want); err != nil {
+				t.Fatal(err)
+			} else {
+				body = bytes.NewBuffer([]byte(data))
+			}
+			// so that we can wrap it in Nopcloser and pass it for a io.ReadCloser
+			mresp := nethttp.Response{
+				Status:     "200 OK",
+				StatusCode: 200,
+				Body:       ioutil.NopCloser(body),
+			}
+			// now run this mock reply through FromPayload()
+			have := f3c.AccountXL{}
+			var err error
+			if have, err = http.FromPayload(&mresp); err != nil {
+				t.Fatal(err)
+			}
+			// the account in the unmarshalled payload should match the initial one
+			if err := isEqual(want.Account.Account, have.Account); err != nil {
+				t.Fatal(err)
+			}
+		})
+}
+
 func actErr(name string, field1 interface{}, field2 interface{}) error {
 	return errors.New(fmt.Sprintf("ERROR %s: %v != %v", name, field1, field2))
 }
 
-func isEqual(act f3c.Account, res f3c.AccountXL) error {
+func isEqual(act f3c.Account, res f3c.Account) error {
 	if act.ID != res.ID {
 		return actErr("UID", act.ID, res.ID)
 	}

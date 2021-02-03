@@ -24,6 +24,8 @@ import (
 type AccountSvc struct {
 	// Allow users to set their own clients if they want to.
 	// why? https://youtu.be/cmkKxNN7cs4?t=1509
+	// Also allows for easier unit tests if we decide to implement them
+	// without the simulated backend.
 	// The default zero value is fine as well.
 	Cli http.Client
 	// base must be set to the base url of the REST server
@@ -124,7 +126,6 @@ func ToPayload(act f3c.Account) *bytes.Buffer {
 	var data []byte
 	var err error
 	payload := f3c.PayloadOut{Account: act}
-	//Pprint(payload)
 	if data, err = json.Marshal(payload); err != nil {
 		return nil
 	}

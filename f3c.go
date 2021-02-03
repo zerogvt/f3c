@@ -27,6 +27,7 @@ func NewAccount(uid string, orgid string, attr Attributes) Account {
 }
 
 // AccountXL is a user account with added metadata.
+// It is returned from remote server and it is not meant to be created by client.
 type AccountXL struct {
 	Account
 	Version       int           `json:"version"`
