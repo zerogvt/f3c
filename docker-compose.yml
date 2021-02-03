@@ -43,5 +43,6 @@ services:
 
   f3c:
     image: f3c
+    # make sure api is alive bfr we run the tests
     depends_on:
       - accountapi
