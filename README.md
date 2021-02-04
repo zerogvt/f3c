@@ -3,6 +3,13 @@
 # Client library for Form3 API
 as per https://github.com/form3tech-oss/interview-accountapi
 
+# Author
+Vasileios Gkoumplias
+
+# Run all-in-one tests
+This will have the needed docker image built and run the docker-compose with the unit tests. Tested in OSx. In case you have trouble running it you can still see the tests run in the [latest travis build](https://travis-ci.com/github/zerogvt/f3c).
+`make tests`
+
 # Import
 ```
 import (
@@ -12,6 +19,9 @@ import (
 ```
 
 # Account creation
+To create an account to Form3 system you need to first define the basic account elements locally using Attributes composite literal with at leasst the minimum required fields and then have NewAccount() bind them in a local account. You can then use that account as input to AccountSvc.Create() which will create the account in Form3 remote system.
+
+Next snippet should clarify these steps:
 ```
 import (
     "github.com/zerogvt/f3c"
@@ -38,6 +48,50 @@ svc := http.AccountSvc{
 svc.Create(act)
 ```
 
+# Account Fetch
+Fetching an existing account can be done via AccountSvc.Fetch() function
+```
+svc := http.AccountSvc{
+    Base: "http://form3_api_service",
+}
+id := "id_of_target_account"
+if act, err := svc.Fetch(id); err != nil {
+    t.Fatal(err)
+}
+```
 
-# Run all-in-one tests
-`make tests`
+# Account Delete
+Deleting an existing account can be done via AccountSvc.Delete() function
+```
+svc := http.AccountSvc{
+    Base: "http://form3_api_service",
+}
+id := "id_of_target_account"
+version := 0
+if act, err := svc.Delete(id, version); err != nil {
+    t.Fatal(err)
+}
+```
+
+# Account List
+Listing existing accounts can be done via AccountSvc.Delete() function
+```
+svc := http.AccountSvc{
+    Base: "http://form3_api_service",
+}
+// get all accounts
+acts, res := []f3c.AccountXL{}, []f3c.AccountXL{}
+var err error
+for pg := 0; true; pg += 1 {
+    if res, err = svc.List(pg, 100); err != nil {
+        t.Fatal(err)
+    }
+    if len(res) == 0 {
+        break
+    }
+    acts = append(acts, res...)
+}
+```
+
+# Full Reference
+See [documentation](./doc.md)
