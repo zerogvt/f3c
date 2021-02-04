@@ -8,6 +8,7 @@ Vasileios Gkoumplias
 
 # Run all-in-one tests
 This will have the needed docker image built and run the docker-compose with the unit tests. Tested in OSx. In case you have trouble running it you can still see the tests run in the [latest travis build](https://travis-ci.com/github/zerogvt/f3c).
+
 `make tests`
 
 # Import
@@ -19,7 +20,9 @@ import (
 ```
 
 # Account creation
-To create an account to Form3 system you need to first define the basic account elements locally using Attributes composite literal with at leasst the minimum required fields and then have NewAccount() bind them in a local account. You can then use that account as input to AccountSvc.Create() which will create the account in Form3 remote system.
+To create an account to Form3 system you need to first define the basic account elements locally using an f3c.Attributes composite literal with at least the minimum required fields and then have f3c.NewAccount() bind them in a local account.
+
+You can then use that account as input to AccountSvc.Create() which will create the account in Form3 remote system.
 
 Next snippet should clarify these steps:
 ```
@@ -28,7 +31,7 @@ import (
     "github.com/zerogvt/f3c/http"
 )
 
-// create a local Account instance...
+// >> create a local Account instance
 uid := "ad27e265-9605-4b4b-a0e5-123456789012"
 oid := "eb0bd6f5-c3f5-44b2-b677-123456789012"
 attr := f3c.Attributes{
@@ -39,9 +42,10 @@ attr := f3c.Attributes{
     Bic:                   "NWBKGB22",
     AccountClassification: "Personal",
 }
-// ...using the NewAccount makes sure that the Account is properly initialised
+// >> using the NewAccount makes sure that the Account is properly initialised
 act := f3c.NewAccount(uid, oid, attr)
-// and finally use AccountSvc to create the Account in Form3 remote system
+
+// >> finally use AccountSvc to create the Account in Form3 remote system
 svc := http.AccountSvc{
             Base: "http://form3_api_service",
         }
