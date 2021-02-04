@@ -19,7 +19,7 @@ import (
 )
 ```
 
-# Account creation
+# Create
 To create an account to Form3 system you need to first define the basic account elements locally using an f3c.Attributes composite literal with at least the minimum required fields and then have f3c.NewAccount() bind them in a local account.
 
 You can then use that account as input to AccountSvc.Create() which will create the account in Form3 remote system.
@@ -52,7 +52,7 @@ svc := http.AccountSvc{
 svc.Create(act)
 ```
 
-# Account Fetch
+# Fetch
 Fetching an existing account can be done via AccountSvc.Fetch() function
 ```
 svc := http.AccountSvc{
@@ -64,7 +64,7 @@ if act, err := svc.Fetch(id); err != nil {
 }
 ```
 
-# Account Delete
+# Delete
 Deleting an existing account can be done via AccountSvc.Delete() function
 ```
 svc := http.AccountSvc{
@@ -77,7 +77,7 @@ if act, err := svc.Delete(id, version); err != nil {
 }
 ```
 
-# Account List
+# List
 Listing existing accounts can be done via AccountSvc.Delete() function
 ```
 svc := http.AccountSvc{
