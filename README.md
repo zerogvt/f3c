@@ -7,9 +7,12 @@ as per https://github.com/form3tech-oss/interview-accountapi
 Vasileios Gkoumplias
 
 # Run all-in-one tests
-This will have the needed docker image built and run the docker-compose with the unit tests. Tested in OSx. In case you have trouble running it you can still see the tests run in the [latest travis build](https://travis-ci.com/github/zerogvt/f3c).
+This will have the needed docker image built and run the docker-compose with the unit tests. Tested in OSx.
 
 `make test`
+
+In case you have trouble running it you can still see the tests run in the [latest travis build](https://travis-ci.com/github/zerogvt/f3c).
+
 
 # Import
 ```
@@ -20,9 +23,9 @@ import (
 ```
 
 # Create
-To create an account to Form3 system you need to first define the basic account elements locally using an f3c.Attributes composite literal with at least the minimum required fields and then have f3c.NewAccount() bind them in a local account.
+To create an account to Form3 system you need to first define the basic account elements locally using an `f3c.Attributes` composite literal with at least the minimum required fields and then have `f3c.NewAccount()` bind them in a local account.
 
-You can then use that account as input to AccountSvc.Create() which will create the account in Form3 remote system.
+You can then use that account as input to `AccountSvc.Create()` which will create the account in Form3 remote system.
 
 Next snippet should clarify these steps:
 ```
@@ -53,7 +56,7 @@ svc.Create(act)
 ```
 
 # Fetch
-Fetching an existing account can be done via AccountSvc.Fetch() function
+Fetching an existing account can be done via `AccountSvc.Fetch()` function
 ```
 svc := http.AccountSvc{
     Base: "http://form3_api_service",
@@ -65,7 +68,7 @@ if act, err := svc.Fetch(id); err != nil {
 ```
 
 # Delete
-Deleting an existing account can be done via AccountSvc.Delete() function
+Deleting an existing account can be done via `AccountSvc.Delete()` function
 ```
 svc := http.AccountSvc{
     Base: "http://form3_api_service",
@@ -78,7 +81,7 @@ if act, err := svc.Delete(id, version); err != nil {
 ```
 
 # List
-Listing existing accounts can be done via AccountSvc.Delete() function
+Listing existing accounts can be done via `AccountSvc.Delete()` function
 ```
 svc := http.AccountSvc{
     Base: "http://form3_api_service",
