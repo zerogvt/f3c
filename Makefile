@@ -1,4 +1,4 @@
-tests: docker
+test: docker
 	docker-compose -f docker-compose.yml up
 
 backend:

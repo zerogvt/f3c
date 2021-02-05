@@ -19,16 +19,11 @@ go:
 install:
   - go build
 
-script:
-  - go test ./... -v
-  - docker-compose down
-  - go build
-
 jobs:
   include:
     - stage: test
       script:
-        - go test ./...
+        - go test ./... -v
         - docker-compose down
     - stage: build
       script:

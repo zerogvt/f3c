@@ -9,7 +9,7 @@ Vasileios Gkoumplias
 # Run all-in-one tests
 This will have the needed docker image built and run the docker-compose with the unit tests. Tested in OSx. In case you have trouble running it you can still see the tests run in the [latest travis build](https://travis-ci.com/github/zerogvt/f3c).
 
-`make tests`
+`make test`
 
 # Import
 ```

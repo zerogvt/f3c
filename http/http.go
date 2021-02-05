@@ -165,12 +165,3 @@ func FromPayloadArr(r *http.Response) ([]f3c.AccountXL, error) {
 	res = data.Accounts
 	return res, nil
 }
-
-//Pprint pretty prints a struct
-func Pprint(data interface{}) {
-	json, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		return
-	}
-	fmt.Println(string(json))
-}
