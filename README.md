@@ -3,8 +3,6 @@
 # Client library for Form3 API
 as per https://github.com/form3tech-oss/interview-accountapi
 
-# Author
-Vasileios Gkoumplias
 
 # Run all-in-one tests
 This will have the needed docker image built and run the docker-compose with the unit tests. Tested in OSx.
